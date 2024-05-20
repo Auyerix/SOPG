@@ -15,6 +15,7 @@ int main(void)
 {
     mkfifo(FIFO_NAME, 0666);        // se tiene que crear por si el writer no empezò primero
                                     //OJO acá habrìa que preguntar por EEXIST ver 35:43
+    printf("reader: My PID is %d\n", getpid());
     printf("waiting for writers...\n");
     int fd = open(FIFO_NAME, O_RDONLY);
     printf("got a writer\n");
