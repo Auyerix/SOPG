@@ -12,15 +12,40 @@
 
 #define FIFO_NAME "myfifo"   //es una ruta relativa a la carpeta donde estamos
 
+// Prototipo del manejador de señales
+void handle_siguser1(int sig);
+
+// Archivo descriptor del FIFO
+int fd;
+
+//char msg[200];
+
 // Manejador para SIGINT
 void handle_sigint(int sig) {
     //printf("Received SIGINT\n");
     write(1, "Ahhh! SIGINT!\n", 14);
 }
 
+// Manejador para SIGUSR1
+void handle_siguser1(int sig) {
+    //printf("Received \n");
+    //msg[0] = '1';
+    char *msg = "SIGNAL:1\n";
+    write(fd, msg, strlen(msg));
+    write(1, "Ahhh! SIGUSR1!\n", 15);
+}
+
+// Manejador para SIGUSR2
+void handle_siguser2(int sig) {
+    //printf("Received \n");
+    char *msg = "SIGNAL:2\n";
+    write(fd, msg, strlen(msg));
+    write(1, "Ahhh! SIGUSR2!\n", 15);
+}
+
 int main(void)
 {
-    struct sigaction sa, sa_int;
+    struct sigaction sa, sa_int, sa_user1, sa_user2;
 
     // Configurar el manejador para SIGINT
     sa_int.sa_handler = handle_sigint;
@@ -31,6 +56,23 @@ int main(void)
         exit(1);
     }
 
+    // Configurar el manejador para SIGUSR1
+    sa_user1.sa_handler = handle_siguser1;
+    sa_user1.sa_flags = SA_RESTART;
+    sigemptyset(&sa_user1.sa_mask);
+    if (sigaction(SIGUSR1, &sa_user1, NULL) == -1) {
+        perror("sigaction");
+        exit(1);
+    }
+
+    // Configurar el manejador para SIGUSR2
+    sa_user2.sa_handler = handle_siguser2;
+    sa_user2.sa_flags = SA_RESTART;
+    sigemptyset(&sa_user2.sa_mask);
+    if (sigaction(SIGUSR2, &sa_user2, NULL) == -1) {
+        perror("sigaction");
+        exit(1);
+    }
 
 
     // Configuración el manejador para el pipe
@@ -50,7 +92,7 @@ int main(void)
 
     printf("writer: My PID is %d\n", getpid());
     printf("waiting for readers...\n");
-    int fd = open(FIFO_NAME, O_WRONLY);
+    fd = open(FIFO_NAME, O_WRONLY);
     printf("got a reader--type some stuff\n");
 
     char s[300];
