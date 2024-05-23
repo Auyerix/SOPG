@@ -7,36 +7,40 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-////parto de Clase4 reader.c
+// parto de Clase4 reader.c
 
 
 #define FIFO_NAME "myfifo"
 #define EXIT_FAILURE 1
 
+// Variables para generar archivos según enunciado
 const char *file_log = "log.txt";
 const char *file_sig = "sig.txt";
 
+// Prototipo de función para crear / agregar en un archivo
 void append_to_file(const char *filename, const char *text);
 
 int main(void)
 {
-    mkfifo(FIFO_NAME, 0666);        // se tiene que crear por si el writer no empezò primero
+    // Definición de Variables
+    char s[300];
+    const char *key_string = "DATA:";
+    int num;
+    
+    // Creación del FIFO // se tiene que crear por si el writer no empezò primero
+    mkfifo(FIFO_NAME, 0666);        
                                     //OJO acá habrìa que preguntar por EEXIST ver 35:43
     printf("reader: My PID is %d\n", getpid());
     printf("waiting for writers...\n");
     int fd = open(FIFO_NAME, O_RDONLY);
     printf("got a writer\n");
 
-    char s[300];
-    const char *key_string = "DATA:";
-    int num;
     
     do {
         if ((num = read(fd, s, 300)) == -1)
             perror("read");
         else {
             s[num] = '\0';
-            //printf("reader: read %d bytes: \"%s\"\n", num, s);
             printf("reader: read %d bytes: %s \n",  num, s);
             int resultado = strncmp(key_string, s, 5);
             

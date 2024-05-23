@@ -10,3 +10,11 @@ DATA: loggenado
 DATA: correct
 DATA: nuevamente
 DATA: escribiendo
+DATA: Jueves
+DATA: lindo dìa...
+DATA: jueves frío
+DATA: lindo
+DATA: ocupado
+DATA: hola
+DATA: hola
+DATA: hola
