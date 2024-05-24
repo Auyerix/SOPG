@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 
 // parto de Clase4 reader.c
 
@@ -27,9 +28,24 @@ int main(void)
     const char *key_string = "DATA:";
     int num;
     
-    // Creación del FIFO // se tiene que crear por si el writer no empezò primero
-    mkfifo(FIFO_NAME, 0666);        
-                                    //OJO acá habrìa que preguntar por EEXIST ver 35:43
+    // Creación del FIFO // se tiene que crear por si el writer no empezó primero
+    //mkfifo(FIFO_NAME, 0666);        
+                            
+    if (mkfifo(FIFO_NAME, 0666) == -1) {
+        if (errno == EEXIST) {
+            printf("El FIFO ya existe.\n");
+            //no obstante continúo el programa porque asumo fue creado por el
+            //writer
+        } else {
+            // Mostrar mensaje de error
+            perror("Error al crear el FIFO");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else{
+        printf("FIFO created.\n");
+    }
+
     printf("reader: My PID is %d\n", getpid());
     printf("waiting for writers...\n");
     int fd = open(FIFO_NAME, O_RDONLY);

@@ -1,16 +1,17 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sys/wait.h>
-
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
+
 //parto del ejemplo de Clase4 writer_clase2.c
 
 #define FIFO_NAME "myfifo"          //es una ruta relativa a la carpeta donde estamos
+#define EXIT_FAILURE 1
 
 // Prototipo del manejador de señales
 void handle_siguser1(int sig);
@@ -73,7 +74,22 @@ int main(void)
     // Creación del FIFO
     //066 son los permisos, de lectura y escritura ojo que hay
     // un an not luego, es la umask 0022
-    mkfifo(FIFO_NAME, 0666); 
+    //mkfifo(FIFO_NAME, 0666);        
+                            
+    if (mkfifo(FIFO_NAME, 0666) == -1) {
+        if (errno == EEXIST) {
+            printf("El FIFO ya existe.\n");
+            //no obstante continúo el programa porque asumo fue creado por el
+            //reader
+        } else {
+            // Mostrar mensaje de error
+            perror("Error al crear el FIFO");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else{
+        printf("FIFO created.\n");
+    }
     
     //return(0) // si quiero probar creación del archivo (inodo describe la estructura de myfifo)
 
